@@ -1,28 +1,22 @@
 package com.sda.diary.backend;
 
+import com.sda.diary.config.HibernateConfig;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.util.logging.Level;
 
 public class HibernateUtils {
-    private final static SessionFactory sessionFactory;
 
-    static {
-        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
-        StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-                .configure()
-                .build();
+  private final static SessionFactory sessionFactory;
 
-        sessionFactory = new MetadataSources(registry)
-                .buildMetadata()
-                .buildSessionFactory();
-    }
+  static {
+    java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+    sessionFactory = HibernateConfig.getSessionFactory();
+  }
 
-    public static SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
+  public static SessionFactory getSessionFactory() {
+    return sessionFactory;
+  }
 }
+
 

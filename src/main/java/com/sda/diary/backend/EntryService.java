@@ -4,26 +4,26 @@ import com.sda.diary.exception.BadRequestException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import java.util.logging.Logger;
 
 public class EntryService {
     private final EntryRepository entryRepository;
     private final TimeClient timeClient;
+    private static final Logger LOGGER = Logger.getLogger(EntryService.class.getName());
 
     public EntryService(EntryRepository entryRepository, TimeClient timeClient) {
-        this.entryRepository = entryRepository;
-        this.timeClient = timeClient;
+        this.entryRepository = Objects.requireNonNull(entryRepository, "EntryRepository cannot be null");
+        this.timeClient = Objects.requireNonNull(timeClient, "TimeClient cannot be null");
     }
 
     Entry createNewEntry(String title, String content) {
-        if(isBlank(title) || isNull(title)) {
-            throw new BadRequestException("The title cannot be empty");
-        }
-        if(isBlank(content) || isNull(content)) {
-            throw new BadRequestException("Content cannot be empty");
-        }
+        validateInput(title, "The title cannot be empty");
+        validateInput(content, "Content cannot be empty");
 
         Instant now = timeClient.getCurrentTime();
         Entry entry = new Entry(title, content, now);
+        LOGGER.info("Saving entry to DB");
         return entryRepository.saveEntry(entry);
     }
 
@@ -31,23 +31,10 @@ public class EntryService {
         return entryRepository.readAllEntries();
     }
 
-
-
-    private boolean isNull(String... args) {
-        for (String arg : args) {
-            if (arg == null) {
-                return true;
-            }
+    private void validateInput(String input, String errorMessage) {
+        Objects.requireNonNull(input, errorMessage);
+        if (input.isBlank()) {
+            throw new BadRequestException(errorMessage);
         }
-        return false;
-    }
-
-    private boolean isBlank(String... args) {
-        for (String arg : args) {
-            if (arg.isBlank()) {
-                return true;
-            }
-        }
-        return false;
     }
 }
